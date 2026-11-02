@@ -1,4 +1,36 @@
-# Audio Share
+# Audio Share Plus
+
+**Free, open-source PC ↔ Android audio.** Your phone plays your PC's sound, and your phone's mic works as the PC's mic. No ads, no time limits, no paid tier.
+
+Audio Share Plus is a fork of [mkckr0/audio-share](https://github.com/mkckr0/audio-share) (Apache-2.0). Everything below the line is the upstream README; the PC server is unchanged upstream code.
+
+### What Plus adds
+
+| Feature | Audio Share | Audio Share Plus |
+|---|---|---|
+| PC audio → phone (Wi-Fi / USB tethering) | ✅ | ✅ |
+| Several phones at once | ✅ | ✅ |
+| Play/pause from the notification, quick-settings tile | ✅ | ✅ |
+| Buffer size, volume, loudness boost | ✅ | ✅ |
+| **Phone mic → PC** (48 kHz, noise suppression, auto-reconnect) | ❌ | ✅ |
+| One-click high-quality server (24-bit / 48 kHz) | ❌ | ✅ |
+| Installs next to the original app (`.plus` app id) | — | ✅ |
+
+### Quick start
+
+1. **PC:** download `AudioShareServer.exe` (or the cmd server) from the [upstream release](https://github.com/mkckr0/audio-share/releases/latest) and start it, or run [`plus/windows/Start-AudioShare-HQ.bat`](plus/windows/Start-AudioShare-HQ.bat) next to `as-cmd.exe` for 24-bit audio.
+2. **Phone:** install `AudioSharePlus.apk` from [Releases](../../releases/latest), type the PC's LAN IP, press ▶.
+3. **Mic (optional):** install [VB-Audio Virtual Cable](https://vb-audio.com/Cable/) and [mpv](https://mpv.io), run [`plus/windows/Start-PhoneMic.bat`](plus/windows/Start-PhoneMic.bat) with the CABLE Input device (`mpv --audio-device=help` lists the ids), then press **Phone mic → PC** in the app. In Zoom, Discord, OBS and other apps, choose **CABLE Output** as the microphone.
+
+The mic stream is raw PCM (48 kHz, mono, s16le) over TCP on the audio port + 1 (default `65531`), so any tool that reads raw audio from a TCP socket can receive it.
+
+### Build
+
+The APK is built by GitHub Actions ([`.github/workflows/plus-apk.yml`](.github/workflows/plus-apk.yml)) on every push to `plus`. Without `keystore.properties`, the release build is signed with the debug key and gets the `.plus` app id.
+
+---
+
+# Audio Share (upstream README)
 <p align="center">
     <img src="metadata/en-US/images/icon.png" width="20%" alt="metadata/en-US/images/icon.png">
 </p>
