@@ -16,6 +16,15 @@
 
 package io.github.mkckr0.audio_share_app.ui.screen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.material3.FilledTonalButton
+import androidx.core.content.ContextCompat
+import io.github.mkckr0.audio_share_app.service.MicService
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -145,6 +154,44 @@ fun HomeScreen(viewModel: HomeScreenViewModel = viewModel()) {
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxSize()
                     )
+                }
+
+                val micRunning by MicService.running.collectAsStateWithLifecycle()
+                val micStatus by MicService.status.collectAsStateWithLifecycle()
+                val micPermission = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { granted ->
+                    val p = port.toIntOrNull()
+                    if (granted && p != null && !isHostError) {
+                        MicService.start(context, host, p + 1)
+                    }
+                }
+                FilledTonalButton(
+                    onClick = {
+                        val p = port.toIntOrNull() ?: return@FilledTonalButton
+                        if (isHostError) return@FilledTonalButton
+                        if (micRunning) {
+                            MicService.stop(context)
+                        } else if (ContextCompat.checkSelfPermission(
+                                context, Manifest.permission.RECORD_AUDIO
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            MicService.start(context, host, p + 1)
+                        } else {
+                            micPermission.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (micRunning) Icons.Default.MicOff else Icons.Default.Mic,
+                        contentDescription = null,
+                    )
+                    Text(
+                        text = if (micRunning) "  Stop mic" else "  Phone mic -> PC",
+                    )
+                }
+                if (micStatus.isNotEmpty()) {
+                    Text(text = micStatus, style = MaterialTheme.typography.bodySmall)
                 }
 
                 Row(

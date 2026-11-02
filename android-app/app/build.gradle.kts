@@ -42,8 +42,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val hasKeystore = rootProject.file("keystore.properties").exists()
     signingConfigs {
-        create("release") {
+        if (hasKeystore) create("release") {
             val keystoreProperties = Properties().apply {
                 load(rootProject.file("keystore.properties").inputStream())
             }
@@ -62,7 +63,13 @@ android {
             isDebuggable = false
             isProfileable = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs["release"]
+            // our "Plus" build: no upstream key -> debug key + own app id, installs next to the original
+            if (hasKeystore) {
+                signingConfig = signingConfigs["release"]
+            } else {
+                signingConfig = signingConfigs["debug"]
+                applicationIdSuffix = ".plus"
+            }
         }
     }
 
